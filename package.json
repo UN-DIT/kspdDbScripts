@@ -1,0 +1,26 @@
+{
+  "name": "kspd-db-scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "reset:dev": "ts-node src/scripts/reset.ts",
+    "find:empty:dev": "ts-node src/scripts/emptyFinder.ts",
+    "subject:match:dev": "ts-node src/scripts/subjectMatcher.ts",
+    "run:dev": "ts-node src/scripts/reset.ts && ts-node src/scripts/emptyFinder.ts && ts-node src/scripts/subjectMatcher.ts",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.13.14",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "mongodb": "^6.15.0"
+  }
+}
