@@ -9,6 +9,7 @@ const { APP_VERSION } = process.env;
 const SCRIPT_NAME = "⛩️ STRUCTUREMATCHER"
 const STRUCTURE_COLLECTION_NAME = "data_structure";
 const FILES_COLLECTION_NAME = "files";
+const LOGS_COLLECTION_NAME = "logs";
 
 async function getSubjects(db: Db) {
     try {
@@ -28,6 +29,7 @@ const main = async () => {
 
     const startTime = Date.now(); // Початковий час
     const [connect, disconnect] = await dbInit()
+    let status = "success"
 
     try {
         const db = await connect();
@@ -50,14 +52,34 @@ const main = async () => {
             console.log(`✅ Updated ${result.modifiedCount} documents`);
         }
     } catch (error) {
+        status = "error";
+        console.error("❌ Error:", error);
+    }
+
+    const endTime = Date.now(); // Час після завершення операції
+    const durationMs = endTime - startTime; // Загальний час у мілісекундах
+
+    try {
+        const db = await connect();
+
+        if (!db) {
+            return
+        }
+
+        const logsCollection = db.collection(LOGS_COLLECTION_NAME);
+        await logsCollection.insertOne({
+            type: "subjectMatcher",
+            text: "Маркування категорій",
+            startTime: new Date(startTime).toISOString(),
+            endTime: new Date(endTime).toISOString(),
+            status
+        });
+    } catch (error) {
         console.error("❌ Error:", error);
     } finally {
         await disconnect()
         console.log("🔌 Disconnected from MongoDB");
     }
-
-    const endTime = Date.now(); // Час після завершення операції
-    const durationMs = endTime - startTime; // Загальний час у мілісекундах
 
     // Розрахунок годин, хвилин, секунд
     const hours = Math.floor(durationMs / 3600000);

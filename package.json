@@ -5,9 +5,12 @@
   "main": "index.ts",
   "scripts": {
     "reset:dev": "ts-node src/scripts/reset.ts",
+    "compare:dev": "ts-node src/scripts/comparer.ts",
     "find:empty:dev": "ts-node src/scripts/emptyFinder.ts",
+    "find:warning:dev": "ts-node src/scripts/warningFinder.ts",
+    "find:fileext:dev": "ts-node src/scripts/filesExtFinder.ts",
     "subject:match:dev": "ts-node src/scripts/subjectMatcher.ts",
-    "run:dev": "ts-node src/scripts/reset.ts && ts-node src/scripts/emptyFinder.ts && ts-node src/scripts/subjectMatcher.ts",
+    "run:dev": "ts-node src/scripts/comparer.ts && ts-node src/scripts/reset.ts && ts-node src/scripts/emptyFinder.ts && ts-node src/scripts/warningFinder.ts && ts-node src/scripts/filesExtFinder.ts && ts-node src/scripts/subjectMatcher.ts",
     "build": "tsc"
   },
   "keywords": [],
