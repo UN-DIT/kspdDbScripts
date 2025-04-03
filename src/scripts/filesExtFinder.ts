@@ -1,6 +1,7 @@
 import { configDotenv } from 'dotenv';
 import { Db } from "mongodb";
 import dbInit from "../dbInit"
+import {sendMessageToTeams} from "./teamsSender";
 
 configDotenv();
 
@@ -109,7 +110,6 @@ const main = async () => {
             console.log('🤿 Depth: ', depth)
             await updateParentExtensions(db, depth);
         }
-
     } catch (error) {
         status = "error";
         console.error("❌ Error:", error);
@@ -133,6 +133,7 @@ const main = async () => {
             endTime: new Date(endTime).toISOString(),
             status
         });
+        await sendMessageToTeams(`Пошук розширень файлів - ${status}`);
     } catch (error) {
         console.error("❌ Error:", error);
     } finally {

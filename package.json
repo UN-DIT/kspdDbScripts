@@ -10,6 +10,7 @@
     "find:warning:dev": "ts-node src/scripts/warningFinder.ts",
     "find:fileext:dev": "ts-node src/scripts/filesExtFinder.ts",
     "subject:match:dev": "ts-node src/scripts/subjectMatcher.ts",
+    "send:dev": "ts-node src/scripts/teamsSender.ts",
     "run:dev": "ts-node src/scripts/comparer.ts && ts-node src/scripts/reset.ts && ts-node src/scripts/emptyFinder.ts && ts-node src/scripts/warningFinder.ts && ts-node src/scripts/filesExtFinder.ts && ts-node src/scripts/subjectMatcher.ts",
     "build": "tsc"
   },
@@ -23,6 +24,7 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
+    "axios": "^1.8.4",
     "dotenv": "^16.4.7",
     "mongodb": "^6.15.0"
   }

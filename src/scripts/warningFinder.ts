@@ -1,6 +1,7 @@
 import { configDotenv } from 'dotenv';
 import { Db } from "mongodb";
 import dbInit from "../dbInit";
+import {sendMessageToTeams} from "./teamsSender";
 
 
 configDotenv();
@@ -116,6 +117,7 @@ const main = async () => {
             endTime: new Date(endTime).toISOString(),
             status
         });
+        await sendMessageToTeams(`Пошук сміття - ${status}`);
     } catch (error) {
         console.error("❌ Error:", error);
     } finally {
