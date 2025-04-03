@@ -50,14 +50,14 @@ async function updateParentExtensions(db: Db, depth = 0) {
                             $addToSet: { $cond: [{ $eq: ["$type", "file"] }, "$ext", "$$REMOVE"] }
                         },
                         folderExts: {
-                            $addToSet: { $cond: [{ $eq: ["$type", "folder"] }, "$extFiles", "$$REMOVE"] }
+                            $addToSet: { $cond: [{ $eq: ["$type", "folder"] }, "$filesExt", "$$REMOVE"] }
                         }
                     }
                 },
                 {
                     $project: {
                         _id: 1,
-                        extFiles: { $setUnion: ["$fileExts", { $reduce: { input: "$folderExts", initialValue: [], in: { $setUnion: ["$$value", "$$this"] } } }] }
+                        filesExt: { $setUnion: ["$fileExts", { $reduce: { input: "$folderExts", initialValue: [], in: { $setUnion: ["$$value", "$$this"] } } }] }
                     }
                 }
             ])
@@ -74,7 +74,7 @@ async function updateParentExtensions(db: Db, depth = 0) {
         const bulkOps = children.map((doc) => ({
             updateOne: {
                 filter: { id: doc._id },
-                update: { $set: { filesExt: doc.extFiles } }
+                update: { $set: { filesExt: doc.filesExt } }
             }
         }));
 
