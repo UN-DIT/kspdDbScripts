@@ -85,7 +85,7 @@ async function compareTables(db: Db) {
                 newBulkOps.push({insertOne: {document: tempDoc}});
             }
 
-            if (newBulkOps.length >= 100000) {
+            if (newBulkOps.length >= 10000) {
                 await filesCollection.bulkWrite(newBulkOps);
                 newBulkOps.length = 0;
             }

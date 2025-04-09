@@ -11,42 +11,6 @@ const SCRIPT_NAME = "⚠️ WARNINGFINDER"
 const COLLECTION_NAME = "files";
 const LOGS_COLLECTION_NAME = "logs";
 
-async function setExtension(db: Db) {
-    try {
-        const collection = db.collection(COLLECTION_NAME);
-
-        console.log(`🗂️ Set files extension`);
-        const result = await collection.updateMany(
-            { path: { $exists: true }, type: "file" },
-            [
-                {
-                    $set: {
-                        ext: {
-                            $toLower: {
-                                $arrayElemAt: [{ $split: ["$path", "."] }, -1]
-                            }
-                        }
-                    }
-                },
-                {
-                    $set: {
-                        ext: {
-                            $cond: {
-                                if: { $lte: [{ $strLenCP: "$ext" }, 10] }, // Перевіряємо довжину ext
-                                then: "$ext",
-                                else: "$$REMOVE" // Видаляємо поле, якщо довжина більше 10
-                            }
-                        }
-                    }
-                }
-            ]
-        );
-        console.log(`✅ Updated ${result.modifiedCount} documents.`);
-    } catch (error) {
-        console.error("❌ Error setting files extension:", error);
-    }
-}
-
 async function markWarningByExt(db: Db) {
     try {
         const collection = db.collection(COLLECTION_NAME);
@@ -91,7 +55,6 @@ const main = async () => {
             return
         }
 
-        await setExtension(db);
         await markWarningByExt(db);
         await markWarningByFileName(db);
     } catch (error) {

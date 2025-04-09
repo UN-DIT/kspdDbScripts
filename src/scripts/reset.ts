@@ -19,7 +19,6 @@ async function resetIsEmptyField(db: Db) {
         const result = await collection.updateMany({}, {
             $set: {
                 isEmpty: false,
-                ext: "",
                 subjects: [],
                 isWarning: false,
                 filesExt: [],
