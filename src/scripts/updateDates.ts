@@ -6,7 +6,7 @@ import {sendMessageToTeams} from "./teamsSender";
 configDotenv();
 
 const { APP_VERSION } = process.env;
-const SCRIPT_NAME = "🪫 EMPTYFINDER"
+const SCRIPT_NAME = "📆 UPDATEDATES"
 const COLLECTION_NAME = "files";
 const LOGS_COLLECTION_NAME = "logs";
 
@@ -60,8 +60,7 @@ async function checkOneDepth(db: Db, depth = 0) {
         const hasChildren = await collection
             .find({
                 parentId: { $in: folderIds },
-                $or: [{ type: "file" }, { type: "folder", isEmpty: false }],
-                isWarning: false,
+                $or: [{ type: "file" }, { type: "folder", isEmpty: false }]
             })
             .project({ parentId: 1 })
             .toArray();
@@ -82,6 +81,63 @@ async function checkOneDepth(db: Db, depth = 0) {
             );
 
             console.log(`✅ Updated ${folderIdsToUpdate.length} folders.`);
+        }
+    } catch (error) {
+        console.error("❌ Error:", error);
+    }
+}
+
+async function updateFolderUpdatedDates(db: Db, depth = 0) {
+    const collection = db.collection("files");
+
+    try {
+        console.log(`🔍 Step 1: Aggregating max(updated) per parentId...`);
+
+        // 1. Групуємо дітей за parentId, беремо max(updated)
+        const childrenUpdated = await collection.aggregate([
+            {
+                $match: {
+                    updated: { $exists: true },
+                    parentId: { $exists: true },
+                    isEmpty: false,
+                    isWarning: false,
+                }
+            },
+            {
+                $group: {
+                    _id: "$parentId",
+                    maxUpdated: { $max: "$updated" }
+                }
+            }
+        ]).toArray();
+
+        console.log(`📊 Found ${childrenUpdated.length} parents with updated children.`);
+
+        // 2. Отримаємо id всіх папок на поточному depth
+        const folders = await collection.find({
+            type: "folder",
+            depth
+        }).project({ _id: 1, id: 1 }).toArray();
+
+        const idToFolderMap = new Map(folders.map(f => [f.id, f._id]));
+
+        // 3. Формуємо bulk update тільки для тих, хто є у мапі
+        const bulkOps = childrenUpdated
+            .filter(entry => idToFolderMap.has(entry._id))
+            .map(entry => ({
+                updateOne: {
+                    filter: { _id: idToFolderMap.get(entry._id) },
+                    update: { $set: { updated: entry.maxUpdated } }
+                }
+            }));
+
+        console.log(`🛠 Preparing to update ${bulkOps.length} folders...`);
+
+        if (bulkOps.length > 0) {
+            const res = await collection.bulkWrite(bulkOps);
+            console.log(`✅ Updated ${res.modifiedCount} folders.`);
+        } else {
+            console.log("ℹ️ Nothing to update.");
         }
     } catch (error) {
         console.error("❌ Error:", error);
@@ -116,7 +172,8 @@ const main = async () => {
 
         for (let depth = maxDepth; depth >= 0; depth--) {
             console.log('🤿 Depth: ', depth)
-            await checkOneDepth(db, depth);
+            // await checkOneDepth(db, depth);
+            await updateFolderUpdatedDates(db, depth);
         }
 
         await countTotalEmpty(db)
@@ -138,13 +195,13 @@ const main = async () => {
 
         const logsCollection = db.collection(LOGS_COLLECTION_NAME);
         await logsCollection.insertOne({
-            type: "emptyFinder",
-            text: "Пошук порожніх папок",
+            type: "updateDates",
+            text: "Зміна дат оновлення для батьківських елементів",
             startTime: new Date(startTime).toISOString(),
             endTime: new Date(endTime).toISOString(),
             status
         });
-        await sendMessageToTeams(`Пошук порожніх папок - ${status}`);
+        await sendMessageToTeams(`Зміна дат оновлення для батьківських елементів - ${status}`);
     } catch (error) {
         console.error("❌ Error:", error);
     } finally {
