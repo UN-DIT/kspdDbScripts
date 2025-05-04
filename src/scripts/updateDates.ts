@@ -113,7 +113,7 @@ async function updateFolderUpdatedDates(db: Db, depth = 0) {
 
         console.log(`📊 Found ${childrenUpdated.length} parents with updated children.`);
 
-        // 2. Отримаємо id всіх папок на поточному depth
+        // 2. Отримаємо id всіх тек на поточному depth
         const folders = await collection.find({
             type: "folder",
             depth

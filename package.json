@@ -12,7 +12,8 @@
     "subject:match:dev": "ts-node src/scripts/subjectMatcher.ts",
     "update:dates:dev": "ts-node src/scripts/updateDates.ts",
     "send:dev": "ts-node src/scripts/teamsSender.ts",
-    "run:dev": "ts-node src/scripts/comparer.ts && ts-node src/scripts/reset.ts && ts-node src/scripts/warningFinder.ts && ts-node src/scripts/emptyFinder.ts  && ts-node src/scripts/updateDates.ts && ts-node src/scripts/filesExtFinder.ts && ts-node src/scripts/subjectMatcher.ts",
+    "normalize:dev": "ts-node src/scripts/normalizer.ts",
+    "run:dev": "ts-node src/scripts/comparer.ts && ts-node src/scripts/reset.ts && ts-node src/scripts/warningFinder.ts && ts-node src/scripts/emptyFinder.ts  && ts-node src/scripts/updateDates.ts && ts-node src/scripts/filesExtFinder.ts && ts-node src/scripts/subjectMatcher.ts && ts-node src/scripts/normalizer.ts",
     "build": "tsc"
   },
   "keywords": [],
@@ -27,6 +28,7 @@
   "dependencies": {
     "axios": "^1.8.4",
     "dotenv": "^16.4.7",
-    "mongodb": "^6.15.0"
+    "mongodb": "^6.15.0",
+    "p-limit": "^6.2.0"
   }
 }
