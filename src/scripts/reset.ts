@@ -22,7 +22,9 @@ async function resetIsEmptyField(db: Db) {
                 subjects: [],
                 isWarning: false,
                 filesExt: [],
-                isChecked: true
+                isChecked: true,
+                lemmas: [],
+                ancestorIds: []
             }
         });
         console.log(`✅ Updated ${result.modifiedCount} documents.`);
