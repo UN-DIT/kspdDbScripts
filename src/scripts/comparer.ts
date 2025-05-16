@@ -1,16 +1,6 @@
-import {configDotenv} from 'dotenv';
 import {Db} from "mongodb";
-import dbInit from "../dbInit";
-import {sendMessageToTeams} from "./teamsSender";
-
-
-configDotenv();
-
-const {APP_VERSION} = process.env;
-const SCRIPT_NAME = "👯 COMPARER"
-const FILES_COLLECTION_NAME = "files";
-const TEMP_COLLECTION_NAME = "tmp";
-const LOGS_COLLECTION_NAME = "logs";
+import {runWithLogging} from "../utils/runWithLogging";
+import {FILES_COLLECTION_NAME, TEMP_COLLECTION_NAME} from "../constants";
 
 async function markAsNotChecked(db: Db) {
     try {
@@ -65,8 +55,8 @@ async function compareTables(db: Db) {
         if (bulkOps.length > 0) {
             await filesCollection.bulkWrite(bulkOps);
         }
-        console.log(`✅ Updated documents.`);
 
+        console.log(`✅ Updated documents.`);
         console.log(`🌾 Add new (stream mode)`);
 
         // 2️⃣ Додавання нових записів (без distinct)
@@ -78,11 +68,13 @@ async function compareTables(db: Db) {
         }
 
         const newBulkOps = [];
+        let insertedCount = 0; // 👈 Лічильник нових документів
         const tempCursorNew = tempCollection.find({}, {projection: {_id: 0}});
 
         for await (const tempDoc of tempCursorNew) {
             if (!existingIds.has(tempDoc.id)) {
                 newBulkOps.push({insertOne: {document: tempDoc}});
+                insertedCount++; // 👈 Збільшення лічильника
             }
 
             if (newBulkOps.length >= 10000) {
@@ -94,8 +86,8 @@ async function compareTables(db: Db) {
         if (newBulkOps.length > 0) {
             await filesCollection.bulkWrite(newBulkOps);
         }
-        console.log(`✅ Added new documents.`);
 
+        console.log(`✅ Added ${insertedCount} new documents.`);
     } catch (error) {
         console.error("❌ Error setting files extension:", error);
     }
@@ -115,62 +107,16 @@ async function clearNotChecked(db: Db) {
     }
 }
 
-const main = async () => {
-    console.log(`${SCRIPT_NAME} v.${APP_VERSION}`)
-
-    const startTime = Date.now(); // Початковий час
-    const [connect, disconnect] = await dbInit()
-    let status = "success"
-
-    try {
-        const db = await connect();
-
-        if (!db) {
-            return
-        }
-
+runWithLogging({
+    script: {
+        name: "🐣 COMPARER",
+        index: 2,
+        version: "1.0",
+        text: "Оновлення даних"
+    },
+    run: async (db) => {
         await markAsNotChecked(db);
         await compareTables(db);
         await clearNotChecked(db);
-
-    } catch (error) {
-        status = "error";
-        console.error("❌ Error:", error);
-    }
-
-    const endTime = Date.now(); // Час після завершення операції
-    const durationMs = endTime - startTime; // Загальний час у мілісекундах
-
-    try {
-        const db = await connect();
-
-        if (!db) {
-            return
-        }
-
-        const logsCollection = db.collection(LOGS_COLLECTION_NAME);
-        await logsCollection.insertOne({
-            type: "compare",
-            text: "Оновлення даних",
-            startTime: new Date(startTime).toISOString(),
-            endTime: new Date(endTime).toISOString(),
-            status
-        });
-        await sendMessageToTeams(`Оновлення даних - ${status}`);
-    } catch (error) {
-        console.error("❌ Error:", error);
-    } finally {
-        await disconnect()
-        console.log("🔌 Disconnected from MongoDB");
-    }
-
-    // Розрахунок годин, хвилин, секунд
-    const hours = Math.floor(durationMs / 3600000);
-    const minutes = Math.floor((durationMs % 3600000) / 60000);
-    const seconds = Math.floor((durationMs % 60000) / 1000);
-
-    console.log(`⏳ Execution time: ${hours}h ${minutes}m ${seconds}s`);
-}
-
-// Run the script
-main()
+    },
+});

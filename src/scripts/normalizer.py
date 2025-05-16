@@ -10,7 +10,6 @@ import pymorphy3
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
 DB_NAME = os.getenv("DB_NAME", "kspd")
 COLLECTION_NAME = "files"
-LOGS_COLLECTION_NAME = "logs"
 BATCH_SIZE = int(os.getenv("BATCH_SIZE", 1000))
 LIMIT = int(os.getenv("LIMIT", 0))
 
@@ -53,7 +52,7 @@ def normalize_documents(db):
     collection = db[COLLECTION_NAME]
 
     cursor = collection.find(
-        {"path": {"$exists": True}, "lemmas": {"$exists": False}},
+        {"path": {"$exists": True}},
         no_cursor_timeout=True,
         batch_size=BATCH_SIZE
     )
@@ -84,19 +83,6 @@ def normalize_documents(db):
 
     logger.info("✅ Всього опрацьовано документів: %d", processed)
 
-def log_execution(db, start_time, end_time, status):
-    try:
-        logs_collection = db[LOGS_COLLECTION_NAME]
-        logs_collection.insert_one({
-            "type": "normalizer",
-            "text": "Нормалізація тексту для пошуку (lemmas)",
-            "startTime": datetime.fromtimestamp(start_time).isoformat(),
-            "endTime": datetime.fromtimestamp(end_time).isoformat(),
-            "status": status
-        })
-    except Exception as log_err:
-        logger.error("❌ Logging error: %s", log_err)
-
 # ----------------- Основний процес -----------------
 def main():
     start_time = time.time()
@@ -112,8 +98,6 @@ def main():
         status = "error"
     finally:
         end_time = time.time()
-        if db is not None:
-            log_execution(db, start_time, end_time, status)
 
         duration = int(end_time - start_time)
         logger.info("⏳ Час виконання: %dh %dm %ds",

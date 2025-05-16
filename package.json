@@ -4,17 +4,17 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "reset:dev": "ts-node src/scripts/reset.ts",
+    "import:dev": "ts-node src/scripts/importer.ts",
     "compare:dev": "ts-node src/scripts/comparer.ts",
-    "find:empty:dev": "ts-node src/scripts/emptyFinder.ts",
+    "reset:dev": "ts-node src/scripts/reset.ts",
     "find:warning:dev": "ts-node src/scripts/warningFinder.ts",
+    "find:empty:dev": "ts-node src/scripts/emptyFinder.ts",
+    "update:dates:dev": "ts-node src/scripts/updateDates.ts",
     "find:fileext:dev": "ts-node src/scripts/filesExtFinder.ts",
     "subject:match:dev": "ts-node src/scripts/subjectMatcher.ts",
-    "update:dates:dev": "ts-node src/scripts/updateDates.ts",
-    "send:dev": "ts-node src/scripts/teamsSender.ts",
-    "normalize:dev": "ts-node src/scripts/normalizer.ts",
     "ancestor:update:dev": "ts-node src/scripts/ancestorUpdater.ts",
-    "run:dev": "ts-node src/scripts/comparer.ts && ts-node src/scripts/reset.ts && ts-node src/scripts/warningFinder.ts && ts-node src/scripts/emptyFinder.ts  && ts-node src/scripts/updateDates.ts && ts-node src/scripts/filesExtFinder.ts && ts-node src/scripts/subjectMatcher.ts && ts-node src/scripts/ancestorUpdater.ts",
+    "normalize:dev": "ts-node src/scripts/normalizer.ts",
+    "run:dev": "ts-node src/scripts/importer.ts && ts-node src/scripts/comparer.ts && ts-node src/scripts/reset.ts && ts-node src/scripts/warningFinder.ts && ts-node src/scripts/emptyFinder.ts  && ts-node src/scripts/updateDates.ts && ts-node src/scripts/filesExtFinder.ts && ts-node src/scripts/subjectMatcher.ts && ts-node src/scripts/ancestorUpdater.ts && ts-node src/scripts/normalizer.ts",
     "build": "tsc"
   },
   "keywords": [],
@@ -22,7 +22,6 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^22.13.14",
-    "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
   },
@@ -30,6 +29,6 @@
     "axios": "^1.8.4",
     "dotenv": "^16.4.7",
     "mongodb": "^6.15.0",
-    "p-limit": "^6.2.0"
+    "stream-json": "^1.9.1"
   }
 }
