@@ -52,7 +52,17 @@ def normalize_documents(db):
     collection = db[COLLECTION_NAME]
 
     cursor = collection.find(
-        {"path": {"$exists": True}},
+        {
+            "$and": [
+                { "path": { "$exists": True } },
+                {
+                    "$or": [
+                        { "lemmas": { "$exists": False } },
+                        { "lemmas": { "$size": 0 } }
+                    ]
+                }
+            ]
+        },
         no_cursor_timeout=True,
         batch_size=BATCH_SIZE
     )

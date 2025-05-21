@@ -14,7 +14,7 @@ async function resetIsEmptyField(db: Db) {
                 isWarning: false,
                 filesExt: [],
                 isChecked: true,
-                lemmas: [],
+                //lemmas: [],
                 ancestorIds: []
             }
         });
