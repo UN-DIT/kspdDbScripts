@@ -5,3 +5,6 @@ export const STRUCTURE_COLLECTION_NAME = "data_structure";
 export const ORGANIZATIONS_COLLECTION_NAME = "organizations";
 export const FIELDS_COLLECTION_NAME = "fields";
 export const WELLS_COLLECTION_NAME = "wells";
+export const WELL_LOGS_COLLECTION_NAME = "well_logs";
+export const EXPLORATION_COLLECTION_NAME = "exploration";
+export const EXPLORATION_INTERVALS_COLLECTION_NAME = "exploration_intervals";
